@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samba De Terra | 501(c)(3) Nonprofit Brazilian Dance Collective</title>
+  <script src="https://tailwindcss.com"></script>
+  <script src="https://jsdelivr.net"></script>
+  <script src="https://cloudflare.com"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printable-qr-card, #printable-qr-card * { visibility: visible; }
+      #printable-qr-card {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px solid #065f46;
+        box-shadow: none;
+        width: 340px;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans">
+
+  <nav class="bg-emerald-800 text-white p-4 sticky top-0 z-40 shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="#" class="flex items-center gap-3">
+        <img src="images/logo.png" alt="Samba De Terra Logo" onerror="this.style.display='none'" class="h-10 w-10 rounded-full object-cover bg-white p-0.5">
+        <span class="text-xl font-bold tracking-wide text-amber-300">Samba De Terra</span>
+      </a>
+      <div class="space-x-6 text-sm font-medium flex items-center">
+        <a href="#events" class="hover:text-amber-300 hidden sm:inline">Events</a>
+        <a href="#media" class="hover:text-amber-300 hidden sm:inline">Photos & Videos</a>
+        <a href="#newsletter" class="hover:text-amber-300 hidden sm:inline">Newsletter</a>
+        <a href="#donate" class="bg-amber-400 text-emerald-950 px-4 py-2 rounded-full font-bold hover:bg-amber-300">Donate</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-emerald-900 text-white py-20 px-4 text-center">
+    <div class="max-w-3xl mx-auto">
+      <img src="images/logo.png" alt="Samba De Terra Logo" onerror="this.style.display='none'" class="h-24 w-24 mx-auto mb-4 rounded-full object-cover bg-white p-1 shadow-lg">
+      <span class="uppercase tracking-widest text-xs font-semibold text-amber-300">501(c)(3) Registered Nonprofit Organization</span>
+      <h1 class="text-4xl md:text-5xl font-extrabold mt-2 mb-4">Samba De Terra</h1>
+      <p class="text-lg text-emerald-100 mb-8">Celebrating Brazilian dance, music, and heritage through live performances, workshops, and community cultural events.</p>
+      <div class="flex justify-center gap-4">
+        <a href="#events" class="bg-amber-400 text-emerald-950 px-6 py-3 rounded-lg font-bold hover:bg-amber-300">See Upcoming Events</a>
+        <a href="#donate" class="border border-white px-6 py-3 rounded-lg font-bold hover:bg-white/10">Support Our Mission</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="events" class="max-w-6xl mx-auto py-16 px-4">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-emerald-900">Upcoming Events & Performances</h2>
+      <p class="text-stone-600 mt-1">All event details are open to the public—no registration required to browse.</p>
+    </div>
+    
+    <div id="public-events-grid" class="grid md:grid-cols-2 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+        <span class="text-xs font-bold uppercase text-amber-600">Dec 12, 2026 • 7:00 PM</span>
+        <h3 class="text-xl font-bold mt-1">Winter Samba Showcase</h3>
+        <p class="text-stone-700 font-medium text-sm mt-1">Community Arts Theater</p>
+        <p class="text-stone-600 mt-2 text-sm">Free admission, open to all ages. Live percussion and traditional costumes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="media" class="bg-stone-100 py-16 px-4">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold mb-8 text-emerald-900">Performances & Gallery</h2>
+      
+      <div class="aspect-video max-w-3xl mx-auto mb-10 rounded-xl overflow-hidden shadow-lg bg-black">
+        <iframe class="w-full h-full" src="https://youtube.com" title="Samba De Terra Performance" allowfullscreen></iframe>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <img src="images/dance1.jpg" alt="Samba De Terra Performance 1" class="rounded-lg object-cover h-64 w-full bg-stone-300">
+        <img src="images/dance2.jpg" alt="Samba De Terra Performance 2" class="rounded-lg object-cover h-64 w-full bg-stone-300">
+        <img src="images/dance3.jpg" alt="Samba De Terra Performance 3" class="rounded-lg object-cover h-64 w-full bg-stone-300">
+      </div>
+    </div>
+  </section>
+
+  <section id="donate" class="max-w-6xl mx-auto py-16 px-4">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-3xl font-bold text-emerald-900 mb-3">Support Samba De Terra</h2>
+      <p class="text-stone-600">Your contribution funds costumes, live percussionists, and free community workshops. 501(c)(3) EIN: <strong>XX-XXXXXXX</strong>.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8 items-start">
+      
+      <div class="lg:col-span-2 space-y-6">
+        
+        <div class="bg-white p-6 rounded-2xl border-2 border-emerald-700 shadow-sm">
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Official Tax Receipt + Newsletter</span>
+          <h3 class="text-xl font-bold text-stone-900 mt-2">Credit / Debit Card (Stripe)</h3>
+          <p class="text-stone-600 text-sm mt-1">Choose "Donate with Receipt" to provide your mailing address for a 501(c)(3) tax receipt and newsletter, or give anonymously.</p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <a id="link-stripe-receipt" href="#" target="_blank" class="bg-emerald-700 text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-emerald-800">
+              Donate with Receipt
+            </a>
+            <a id="link-stripe-anon" href="#" target="_blank" class="bg-stone-200 text-stone-800 px-5 py-3 rounded-xl font-bold text-sm hover:bg-stone-300">
+              Donate Anonymously (Card)
+            </a>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+          <span class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full uppercase">Quick & Anonymous Mobile Giving</span>
+          <h3 class="text-xl font-bold text-stone-900 mt-2">Venmo, PayPal & Cash App</h3>
+          <p class="text-stone-600 text-sm mt-1 mb-5">Tap an app below to send a quick donation directly from your phone—no address or account signup on our site required.</p>
+          
+          <div class="grid sm:grid-cols-3 gap-3">
+            <a id="link-venmo" href="#" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-[#008CFF] text-white font-bold hover:opacity-90 transition">
+              <span class="text-lg">Venmo</span>
+              <span id="handle-venmo" class="text-xs font-normal opacity-90">@SambaDeTerra</span>
+            </a>
+
+            <a id="link-paypal" href="#" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-[#003087] text-white font-bold hover:opacity-90 transition">
+              <span class="text-lg">PayPal</span>
+              <span class="text-xs font-normal opacity-90">PayPal Giving / Card</span>
+            </a>
+
+            <a id="link-cashapp" href="#" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-[#00D632] text-white font-bold hover:opacity-90 transition">
+              <span class="text-lg">Cash App</span>
+              <span id="handle-cashapp" class="text-xs font-normal opacity-90">$SambaDeTerra</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div id="printable-qr-card" class="bg-white p-6 rounded-2xl border-2 border-amber-400 shadow-md text-center">
+        <img src="images/logo.png" alt="Samba De Terra Logo" onerror="this.style.display='none'" class="h-14 w-14 mx-auto mb-2 rounded-full object-cover">
+        <h3 class="text-lg font-extrabold text-emerald-900">Scan to Support Us!</h3>
+        <p class="text-xs text-stone-500 mb-4">Venmo • PayPal • Cash App • Card</p>
+        
+        <div id="qrcode" class="flex justify-center p-3 bg-white rounded-xl border border-stone-200 w-fit mx-auto"></div>
+        
+        <p class="text-xs font-semibold text-emerald-800 mt-4">Samba De Terra</p>
+        <p class="text-[11px] text-stone-500">501(c)(3) Nonprofit • EIN XX-XXXXXXX</p>
+        
+        <button onclick="window.print()" class="no-print mt-5 w-full bg-stone-900 text-white py-2.5 px-4 rounded-lg text-xs font-bold hover:bg-stone-700 flex items-center justify-center gap-2">
+          Print Event QR Card
+        </button>
+      </div>
+
+    </div>
+  </section>
+  <section id="newsletter" class="bg-emerald-900 text-white py-16 px-4">
+    <div class="max-w-xl mx-auto">
+      <h2 class="text-3xl font-bold mb-2 text-center">Join Our Mailing List</h2>
+      <p class="text-emerald-200 text-center mb-8">Receive event updates and our seasonal print & digital newsletter.</p>
+      
+      <form id="subscriber-form" class="space-y-4 bg-emerald-950/50 p-6 rounded-xl border border-emerald-700">
+        <input type="text" id="full_name" placeholder="Full Name *" required class="w-full p-3 rounded bg-white text-stone-900">
+        <input type="email" id="email" placeholder="Email Address *" required class="w-full p-3 rounded bg-white text-stone-900">
+        <input type="text" id="street_address" placeholder="Street Address (for print newsletters)" class="w-full p-3 rounded bg-white text-stone-900">
+        <div class="grid grid-cols-3 gap-2">
+          <input type="text" id="city" placeholder="City" class="p-3 rounded bg-white text-stone-900">
+          <input type="text" id="state" placeholder="State" class="p-3 rounded bg-white text-stone-900">
+          <input type="text" id="zip_code" placeholder="ZIP" class="p-3 rounded bg-white text-stone-900">
+        </div>
+        <button type="submit" class="w-full bg-amber-400 text-emerald-950 font-bold py-3 rounded hover:bg-amber-300">Subscribe</button>
+        <p id="form-status" class="text-center text-sm text-amber-300 mt-2"></p>
+      </form>
+    </div>
+  </section>
+
+  <footer class="bg-stone-900 text-stone-400 py-8 px-4 text-center text-sm">
+    <p>&copy; 2026 Samba De Terra • 501(c)(3) Nonprofit Organization</p>
+    <button onclick="openAdminModal()" class="mt-4 text-xs underline hover:text-white">Admin Portal</button>
+  </footer>
+
+  <div id="admin-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+      <div class="flex justify-between items-center border-b pb-4 mb-4">
+        <h3 class="text-xl font-bold">Samba De Terra — Admin Dashboard</h3>
+        <button onclick="closeAdminModal()" class="text-stone-500 hover:text-black font-bold text-xl">&times;</button>
+      </div>
+
+      <div id="admin-login-view">
+        <form id="login-form" class="space-y-4 max-w-sm mx-auto py-8">
+          <input type="email" id="admin-email" placeholder="Admin Email" required class="w-full p-3 border rounded">
+          <input type="password" id="admin-password" placeholder="Password" required class="w-full p-3 border rounded">
+          <button type="submit" class="w-full bg-emerald-800 text-white py-3 rounded font-bold">Sign In</button>
+          <p id="login-error" class="text-red-600 text-sm"></p>
+        </form>
+      </div>
+
+      <div id="admin-data-view" class="hidden space-y-8">
+        <div class="bg-stone-50 p-4 rounded-lg border">
+          <h4 class="font-bold text-emerald-900 mb-3">Add Public Event</h4>
+          <form id="add-event-form" class="grid md:grid-cols-2 gap-3">
+            <input type="text" id="ev-title" placeholder="Event Title (e.g., Summer Samba Fest)" required class="p-2 border rounded bg-white">
+            <input type="text" id="ev-date" placeholder="Date & Time (e.g., Aug 15, 2027 • 6:00 PM)" required class="p-2 border rounded bg-white">
+            <input type="text" id="ev-location" placeholder="Location / Venue" required class="p-2 border rounded bg-white">
+            <input type="text" id="ev-desc" placeholder="Short Description / Admission Info" class="p-2 border rounded bg-white">
+            <button type="submit" class="md:col-span-2 bg-emerald-700 text-white py-2 rounded font-bold text-sm hover:bg-emerald-800">Publish Event to Website</button>
+          </form>
+        </div>
+
+        <div>
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+            <div class="text-sm text-stone-600">
+              Total Contacts: <strong id="total-count">0</strong> | 
+              <a href="https://cloudflare.com" target="_blank" class="text-emerald-700 underline">View Traffic Analytics &rarr;</a>
+            </div>
+            <div class="space-x-2">
+              <button onclick="exportCSV()" class="bg-emerald-700 text-white px-4 py-2 rounded text-sm font-bold">Export CSV for Newsletter</button>
+              <button onclick="logoutAdmin()" class="bg-stone-200 px-3 py-2 rounded text-sm">Logout</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-stone-100 border-b">
+                  <th class="p-2">Name</th>
+                  <th class="p-2">Email</th>
+                  <th class="p-2">Mailing Address</th>
+                  <th class="p-2">Status</th>
+                </tr>
+              </thead>
+              <tbody id="subscribers-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://supabase.co';
+    const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE';
+    
+    const PAYMENT_LINKS = {
+      stripeReceipt: 'https://stripe.com',
+      stripeAnon: 'https://stripe.com',
+      venmoHandle: '@SambaDeTerra',
+      venmoUrl: 'https://venmo.com',
+      paypalUrl: 'https://paypal.com',
+      cashappTag: '$SambaDeTerra',
+      cashappUrl: 'https://cash.app'
+    };
+
+    document.getElementById('link-stripe-receipt').href = PAYMENT_LINKS.stripeReceipt;
+    document.getElementById('link-stripe-anon').href = PAYMENT_LINKS.stripeAnon;
+    document.getElementById('link-venmo').href = PAYMENT_LINKS.venmoUrl;
+    document.getElementById('handle-venmo').textContent = PAYMENT_LINKS.venmoHandle;
+    document.getElementById('link-paypal').href = PAYMENT_LINKS.paypalUrl;
+    document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
+    document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
+
+    const donationPageUrl = window.location.origin + window.location.pathname + '#donate';
+    new QRCode(document.getElementById("qrcode"), {
+      text: donationPageUrl,
+      width: 160,
+      height: 160,
+      colorDark: "#064e3b",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let loadedSubscribers = [];
+
+    async function loadPublicEvents() {
+      const { data } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
+      if (data && data.length > 0) {
+        const grid = document.getElementById('public-events-grid');
+        grid.innerHTML = data.map(ev => `
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+            <span class="text-xs font-bold uppercase text-amber-600">${ev.event_date}</span>
+            <h3 class="text-xl font-bold mt-1">${ev.title}</h3>
+            <p class="text-stone-700 font-medium text-sm mt-1">${ev.location}</p>
+            <p class="text-stone-600 mt-2 text-sm">${ev.description || ''}</p>
+          </div>
+        `).join('');
+      }
+    }
+    loadPublicEvents();
+
+    document.getElementById('subscriber-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('form-status');
+      status.textContent = 'Saving...';
+
+      const { error } = await supabaseClient.from('subscribers').insert([{
+        full_name: document.getElementById('full_name').value,
+        email: document.getElementById('email').value,
+        street_address: document.getElementById('street_address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip_code: document.getElementById('zip_code').value
+      }]);
+
+      if (error) {
+        status.textContent = 'Error saving subscription. Please verify your Supabase Anon Key.';
+      } else {
+        status.textContent = 'Thank you for subscribing to Samba De Terra!';
+        e.target.reset();
+      }
+    });
+
+    function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); checkSession(); }
+    function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+
+    async function checkSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        document.getElementById('admin-login-view').classList.add('hidden');
+        document.getElementById('admin-data-view').classList.remove('hidden');
+        fetchSubscribers();
+      }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: document.getElementById('admin-email').value,
+        password: document.getElementById('admin-password').value
+      });
+      if (error) {
+        document.getElementById('login-error').textContent = error.message;
+      } else {
+        checkSession();
+      }
+    });
+
+    document.getElementById('add-event-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await supabaseClient.from('events').insert([{
+        title: document.getElementById('ev-title').value,
+        event_date: document.getElementById('ev-date').value,
+        location: document.getElementById('ev-location').value,
+        description: document.getElementById('ev-desc').value
+      }]);
+      if (!error) {
+        e.target.reset();
+        loadPublicEvents();
+        alert('Event published to the public site!');
+      }
+    });
+
+async function logoutAdmin() {
+await supabaseClient.auth.signOut();
+document.getElementById('admin-login-view').classList.remove('hidden');
+document.getElementById('admin-data-view').classList.add('hidden');
+}
+async function fetchSubscribers() {
+const { data } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
+if (data) {
+loadedSubscribers = data;
+document.getElementById('total-count').textContent = data.length;
+const tbody = document.getElementById('subscribers-table-body');
+tbody.innerHTML = data.map(row => `
+${row.is_anonymous ? 'Anonymous Donor' : row.full_name}
+${row.is_anonymous ? '—' : row.email}${[row.street_address, row.city, row.state, row.zip_code].filter(Boolean).join(', ') || '—'}${row.is_donor ? 'Donor' : 'Subscriber'}`).join('');
+}
+}
+function exportCSV() {
+const headers = ['Full Name', 'Email', 'Street Address', 'City', 'State', 'ZIP', 'Is Donor'];
+const rows = loadedSubscribers
+.filter(s => !s.is_anonymous)
+.map(s => [
+"${s.full_name}", "${s.email}", "${s.street_address || ''}", "${s.city || ''}", "${s.state || ''}", "${s.zip_code || ''}", s.is_donor
+]);
+const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+const link = document.createElement("a");
+link.setAttribute("href", encodeURI(csvContent));
+link.setAttribute("download", "samba_de_terra_newsletter.csv");
+document.body.appendChild(link);
+link.click();
+}
