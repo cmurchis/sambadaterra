@@ -246,7 +246,7 @@
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
 
-       // 1. Render Printable QR Code via Image
+    // 1. Render Printable QR Code via Image
     const donateTarget = encodeURIComponent(window.location.origin + window.location.pathname + '#donate');
     const qrImg = document.createElement('img');
     qrImg.alt = 'Scan to Donate to Samba De Terra';
