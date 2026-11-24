@@ -255,7 +255,7 @@
     const cfScript = document.createElement('script');
     cfScript.defer = true;
     cfScript.src = ['https://', 'static.', 'cloudflareinsights', '.com/beacon.min.js'].join('');
-    cfScript.setAttribute('data-cf-beacon', JSON.stringify({ token: "315ae7abf9c94c79a21dfcfe1b9e9ad4" }));
+    cfScript.setAttribute('data-cf-beacon', JSON.stringify({ token: CLOUDFLARE_TOKEN }));
     document.head.appendChild(cfScript);
 
 
