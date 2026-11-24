@@ -60,7 +60,8 @@
       .donate-grid { grid-template-columns: 1fr; }
       .nav-links a:not(.btn-yellow) { display: none; }
     }
-    @media (max-width: 600px) {
+       @media (max-width: 600px) {
+      .badge { font-size: 0.62rem; padding: 0.3rem 0.75rem; letter-spacing: 0.5px; white-space: nowrap; }
       header h1 { font-size: 2.25rem; }
       .brand { font-size: 1.05rem; }
       .card { padding: 1.25rem; }
@@ -69,6 +70,7 @@
       .qr-card { max-width: 340px; margin: 0 auto; width: 100%; }
       .row-3 { grid-template-columns: 1fr; }
     }
+
     @media print {
       body * { visibility: hidden; }
       #printable-qr-card, #printable-qr-card * { visibility: visible; }
@@ -90,7 +92,9 @@
         <a href="#events">Events</a>
         <a href="#media">Photos & Videos</a>
         <a href="#newsletter">Newsletter</a>
-        <a href="#donate" class="btn-yellow">Donate</a>
+        <a href="#dancers">Dancers</a>
+        <a href="#book">Book Us</a>
+         <a href="#donate" class="btn-yellow">Donate</a>
       </div>
     </div>
   </nav>
@@ -102,6 +106,7 @@
     <div class="hero-btns">
       <a href="#events" class="btn-yellow">Upcoming Performances</a>
       <a href="#donate" class="btn-blue">Support Our Dancers</a>
+      <a href="#book" class="btn-blue">Book a Performance</a>
     </div>
   </header>
   <div class="ribbon"></div>
@@ -178,6 +183,27 @@
       </div>
     </div>
   </section>
+    <section id="book">
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 2.5rem;">
+      <span class="section-tag">Bring the Rhythm to Your Event</span>
+      <h2>Book Samba Da Terra</h2>
+      <p style="color: #57534E;">Planning a festival, cultural celebration, corporate event, or private party? Request a live Brazilian dance and percussion performance or workshop.</p>
+    </div>
+
+    <form id="booking-form" class="card" style="max-width: 650px; margin: 0 auto; border-top: 6px solid var(--blue);">
+      <div class="grid-2" style="gap: 0.75rem;">
+        <input type="text" id="bk-name" placeholder="Your Name / Organization *" required>
+        <input type="email" id="bk-email" placeholder="Email Address *" required>
+        <input type="tel" id="bk-phone" placeholder="Phone Number">
+        <input type="text" id="bk-date" placeholder="Event Date & Time *" required>
+      </div>
+      <input type="text" id="bk-location" placeholder="Venue / City (e.g., Sacramento, CA) *" required>
+      <textarea id="bk-details" rows="3" placeholder="Tell us about your event (type of occasion, estimated audience size, performance length)..." style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border-radius: 8px; border: 1px solid #CCC; font-size: 1rem;"></textarea>
+      <button type="submit" class="btn-blue" style="width: 100%; font-size: 1rem;">Send Booking Inquiry</button>
+      <p id="booking-status" style="text-align: center; color: var(--green); font-weight: 800; margin-top: 0.75rem; font-size: 0.9rem;"></p>
+    </form>
+  </section>
+
   <div class="ribbon"></div>
   <div class="newsletter-wrap">
     <section id="newsletter">
@@ -241,6 +267,12 @@
             </div>
           </form>
           <div id="admin-dancers-list" style="margin-top: 1rem;"></div>
+        </div>
+
+        
+          <div class="card" style="background: #EFF6FF; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--blue); margin-bottom: 0.5rem;">Booking & Performance Inquiries (<span id="booking-count">0</span>)</h4>
+          <div id="admin-bookings-list"></div>
         </div>
 
 
@@ -515,6 +547,7 @@
         document.getElementById('admin-data-view').classList.remove('hidden');
         fetchSubscribers();
         loadPublicEvents();
+        fetchBookings();
       }
     }
     function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
@@ -597,6 +630,73 @@
         }
       } catch (err) { console.error(err); }
     }
+        // 8. Public Booking Inquiry Form & Admin View
+    document.getElementById('booking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('booking-status');
+      status.textContent = 'Sending inquiry...';
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/bookings', {
+          method: 'POST',
+          headers: { ...sbHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            contact_name: document.getElementById('bk-name').value,
+            email: document.getElementById('bk-email').value,
+            phone: document.getElementById('bk-phone').value,
+            event_date: document.getElementById('bk-date').value,
+            event_location: document.getElementById('bk-location').value,
+            event_details: document.getElementById('bk-details').value
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          status.textContent = 'Error: ' + (err.message || res.statusText);
+        } else {
+          status.textContent = 'Thank you! Samba Da Terra received your booking inquiry and will reply soon.';
+          e.target.reset();
+        }
+      } catch (err) { status.textContent = 'Network error: ' + err.message; }
+    });
+
+    async function fetchBookings() {
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/bookings?select=*&order=created_at.desc', { headers: sbHeaders(true) });
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = document.getElementById('admin-bookings-list');
+        const countEl = document.getElementById('booking-count');
+        if (countEl) countEl.textContent = Array.isArray(data) ? data.length : 0;
+
+        if (list && Array.isArray(data) && data.length > 0) {
+          list.innerHTML = data.map(b => `
+            <div style="background:white;padding:0.75rem;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:0.5rem;font-size:0.85rem;">
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:0.5rem;">
+                <div>
+                  <strong>${b.contact_name}</strong> • <a href="mailto:${b.email}" style="color:var(--blue);font-weight:700;">${b.email}</a> ${b.phone ? '• ' + b.phone : ''}
+                  <div style="color:var(--green);font-weight:700;margin-top:0.2rem;">Date: ${b.event_date} | Location: ${b.event_location}</div>
+                  ${b.event_details ? `<p style="color:#57534E;margin-top:0.35rem;">${b.event_details}</p>` : ''}
+                </div>
+                <button type="button" onclick="deleteBooking('${b.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;padding:0.3rem 0.65rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;flex-shrink:0;">Delete</button>
+              </div>
+            </div>
+          `).join('');
+        } else if (list) {
+          list.innerHTML = '<p style="font-size:0.85rem;color:#57534E;">No booking inquiries yet.</p>';
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    async function deleteBooking(bookingId) {
+      if (!confirm('Delete this booking inquiry?')) return;
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/bookings?id=eq.' + bookingId, {
+          method: 'DELETE',
+          headers: sbHeaders(true)
+        });
+        if (res.ok) fetchBookings();
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
 
     function exportCSV() {
       const headers = ['Full Name', 'Email', 'Street Address', 'City', 'State', 'ZIP', 'Is Donor'];
