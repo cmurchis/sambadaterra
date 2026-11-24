@@ -246,14 +246,15 @@
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
 
-    // 1. Render Printable QR Code via Image (Zero JS libraries required)
+       // 1. Render Printable QR Code via Image
     const donateTarget = encodeURIComponent(window.location.origin + window.location.pathname + '#donate');
     const qrImg = document.createElement('img');
     qrImg.alt = 'Scan to Donate to Samba De Terra';
     qrImg.width = 160;
     qrImg.height = 160;
-    qrImg.src = 'https://' + '://qrserver.com' + '/v1/create-qr-code/?size=160x160&color=002776&data=' + donateTarget;
+    qrImg.src = ['https://', 'quickchart.io', '/qr?size=160&dark=002776&text=', donateTarget].join('');
     document.getElementById('qrcode').appendChild(qrImg);
+
 
     // 2. Native Supabase API Helper (Zero external JS dependencies)
     let adminToken = sessionStorage.getItem('sdt_admin_token') || '';
