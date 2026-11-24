@@ -221,9 +221,14 @@
       </div>
     </div>
   </div>
-    <script src="https://jsdelivr.net"></script>
-  <script src="https://cloudflare.com"></script>
-  <script>
+    <script>
+    function loadExt(url, onload) {
+      const s = document.createElement('script');
+      s.src = url;
+      s.onload = onload;
+      document.head.appendChild(s);
+    }
+
     const SUPABASE_URL = 'https://' + 'fddldsnpwfeyidmznheh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
     const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
@@ -247,22 +252,26 @@
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
 
-    if (window.QRCode) {
+    const qrUrl = 'https://' + '://cloudflare.com' + '/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    loadExt(qrUrl, () => {
       new QRCode(document.getElementById('qrcode'), {
         text: window.location.origin + window.location.pathname + '#donate',
         width: 150, height: 150, colorDark: '#002776', colorLight: '#ffffff'
       });
-    }
+    });
 
-    const supabaseClient = window.supabase
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
-
+    let supabaseClient = null;
     let loadedSubscribers = [];
+
+    const sbUrl = 'https://' + 'cdn.jsdelivr.net' + '/npm/@supabase/supabase-js@2';
+    loadExt(sbUrl, () => {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      loadPublicEvents();
+    });
 
     async function loadPublicEvents() {
       if (!supabaseClient) return;
-      const { data, error } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
+      const { data } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
         document.getElementById('public-events-grid').innerHTML = data.map(ev => `
           <div class="card event-card">
@@ -274,12 +283,11 @@
         `).join('');
       }
     }
-    loadPublicEvents();
 
     document.getElementById('subscriber-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const status = document.getElementById('form-status');
-      if (!supabaseClient) { status.textContent = 'Supabase script blocked or failed to load.'; return; }
+      if (!supabaseClient) { status.textContent = 'Connecting to database, please click Subscribe again in 1 second...'; return; }
       status.textContent = 'Saving...';
       const { error } = await supabaseClient.from('subscribers').insert([{
         full_name: document.getElementById('full_name').value,
@@ -314,7 +322,7 @@
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl = document.getElementById('login-error');
-      if (!supabaseClient) { errEl.textContent = 'Supabase library failed to load.'; return; }
+      if (!supabaseClient) { errEl.textContent = 'Still loading database—please click Sign In again.'; return; }
       const { error } = await supabaseClient.auth.signInWithPassword({
         email: document.getElementById('admin-email').value,
         password: document.getElementById('admin-password').value
@@ -325,7 +333,7 @@
 
     document.getElementById('add-event-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!supabaseClient) { alert('Supabase not loaded'); return; }
+      if (!supabaseClient) { alert('Database still loading—try again.'); return; }
       const { error } = await supabaseClient.from('events').insert([{
         title: document.getElementById('ev-title').value,
         event_date: document.getElementById('ev-date').value,
