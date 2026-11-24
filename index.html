@@ -129,8 +129,16 @@
         <img src="images/dance2.jpeg" alt="Performance 2" class="gallery-img">
         <img src="images/dance3.jpeg" alt="Performance 3" class="gallery-img">
       </div>
+      
     </section>
   </div>
+    <section id="dancers">
+    <span class="section-tag">Meet the Collective</span>
+    <h2>Our Dancers & Artists</h2>
+    <p style="color: #57534E; margin-top: -1rem; margin-bottom: 2rem;">Meet the performers bringing Brazilian rhythm and heritage to the stage. More artist profiles coming soon!</p>
+    <div id="public-dancers-grid" class="grid-3"></div>
+  </section>
+
   <section id="donate">
     <div style="text-align: center; max-width: 650px; margin: 0 auto 3rem;">
       <span class="section-tag">Fuel the Culture</span>
@@ -218,6 +226,17 @@
             <button type="submit" class="btn-green" style="grid-column: 1 / -1;">Publish Event</button>
           </form>
           <div id="admin-events-list" style="margin-top: 1rem;"></div>
+        </div>
+              <div class="card" style="background: #ECFDF5; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--blue); margin-bottom: 0.75rem;">Manage Dancer Bios</h4>
+          <form id="add-dancer-form" class="grid-2" style="gap: 0.5rem;">
+            <input type="text" id="dn-name" placeholder="Dancer Name *" required>
+            <input type="text" id="dn-role" placeholder="Role / Style (e.g., Lead Samba Dancer) *" required>
+            <input type="text" id="dn-photo" placeholder="Photo path (e.g., images/dancer1.jpg) - Optional">
+            <input type="text" id="dn-bio" placeholder="Short Bio (or leave blank for 'Bio coming soon!')">
+            <button type="submit" class="btn-green" style="grid-column: 1 / -1;">Add Dancer Profile</button>
+          </form>
+          <div id="admin-dancers-list" style="margin-top: 1rem;"></div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
@@ -342,6 +361,82 @@
         }
       } catch (err) { alert('Error: ' + err.message); }
     }
+        // 5B. Load, Add & Delete Dancer Bios
+    async function loadDancers() {
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/dancers?select=*&order=created_at.asc', { headers: sbHeaders() });
+        if (!res.ok) return;
+        const data = await res.json();
+        const grid = document.getElementById('public-dancers-grid');
+        const adminList = document.getElementById('admin-dancers-list');
+
+        if (Array.isArray(data) && data.length > 0) {
+          grid.innerHTML = data.map(d => {
+            const initials = d.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+            const avatar = d.photo_url
+              ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.style.display='none'" style="width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto 1rem;border:3px solid var(--yellow);display:block;">`
+              : `<div style="width:96px;height:96px;border-radius:50%;background:var(--blue);color:var(--yellow);font-weight:900;font-size:1.5rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:3px solid var(--yellow);">${initials}</div>`;
+            return `
+              <div class="card" style="text-align:center;">
+                ${avatar}
+                <h3 style="color:var(--blue);font-weight:900;font-size:1.2rem;">${d.name}</h3>
+                <span class="date-pill" style="display:inline-block;margin:0.35rem 0 0.75rem;">${d.role}</span>
+                <p style="color:#57534E;font-size:0.9rem;">${d.bio || 'Full artist bio coming soon!'}</p>
+              </div>
+            `;
+          }).join('');
+
+          if (adminList) {
+            adminList.innerHTML = '<p style="font-size:0.8rem;font-weight:800;color:#57534E;margin-bottom:0.5rem;">ACTIVE DANCERS:</p>' + data.map(d => `
+              <div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:0.5rem 0.75rem;border:1px solid #E7E5E4;border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;">
+                <span><strong>${d.name}</strong> — ${d.role}</span>
+                <button onclick="deleteDancer('${d.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Delete</button>
+              </div>
+            `).join('');
+          }
+        } else {
+          grid.innerHTML = '<div class="card" style="grid-column:1/-1;text-align:center;color:#57534E;">Artist profiles are being updated—check back soon to meet the dancers of Samba Da Terra!</div>';
+          if (adminList) adminList.innerHTML = '';
+        }
+      } catch (err) { console.error(err); }
+    }
+    loadDancers();
+
+    document.getElementById('add-dancer-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/dancers', {
+          method: 'POST',
+          headers: { ...sbHeaders(true), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            name: document.getElementById('dn-name').value,
+            role: document.getElementById('dn-role').value,
+            photo_url: document.getElementById('dn-photo').value.trim(),
+            bio: document.getElementById('dn-bio').value.trim()
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          alert('Error adding dancer: ' + (err.message || res.statusText));
+        } else {
+          e.target.reset();
+          loadDancers();
+          alert('Dancer profile added!');
+        }
+      } catch (err) { alert('Error: ' + err.message); }
+    });
+
+    async function deleteDancer(dancerId) {
+      if (!confirm('Remove this dancer profile?')) return;
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/dancers?id=eq.' + dancerId, {
+          method: 'DELETE',
+          headers: sbHeaders(true)
+        });
+        if (res.ok) loadDancers();
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
 
     // 6. Newsletter Form
     document.getElementById('subscriber-form').addEventListener('submit', async (e) => {
