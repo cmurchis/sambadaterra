@@ -176,7 +176,7 @@
       </form>
     </section>
   </div>
-  <footer>
+   <footer>
     <p>&copy; 2026 Samba De Terra • 501(c)(3) Nonprofit Organization</p>
     <button onclick="openAdminModal()" style="background: none; border: none; color: var(--yellow); text-decoration: underline; cursor: pointer; margin-top: 0.75rem; font-size: 0.8rem;">Admin Portal</button>
   </footer>
@@ -194,7 +194,8 @@
           <p id="login-error" style="color: #DC2626; font-size: 0.85rem; margin-top: 0.5rem;"></p>
         </form>
       </div>
-             <div class="card" style="background: #FFFBEB; margin-bottom: 1.5rem;">
+      <div id="admin-data-view" class="hidden">
+        <div class="card" style="background: #FFFBEB; margin-bottom: 1.5rem;">
           <h4 style="color: var(--blue); margin-bottom: 0.75rem;">Manage Public Events</h4>
           <form id="add-event-form" class="grid-2" style="gap: 0.5rem;">
             <input type="text" id="ev-title" placeholder="Event Title" required>
@@ -206,7 +207,7 @@
           <div id="admin-events-list" style="margin-top: 1rem;"></div>
         </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <span style="font-size: 0.9rem;">Total Contacts: <strong id="total-count">0</strong></span>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <a id="analytics-dash-link" href="#" target="_blank" class="btn-blue" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Visitor Analytics</a>
