@@ -221,14 +221,9 @@
       </div>
     </div>
   </div>
-   <script>
-    function loadScript(src, cb) {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = cb;
-      document.head.appendChild(s);
-    }
-
+    <script src="https://jsdelivr.net"></script>
+  <script src="https://cloudflare.com"></script>
+  <script>
     const SUPABASE_URL = 'https://' + 'fddldsnpwfeyidmznheh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
     const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
@@ -252,24 +247,22 @@
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
 
-    loadScript('https://' + '://cloudflare.com', () => {
+    if (window.QRCode) {
       new QRCode(document.getElementById('qrcode'), {
         text: window.location.origin + window.location.pathname + '#donate',
         width: 150, height: 150, colorDark: '#002776', colorLight: '#ffffff'
       });
-    });
+    }
 
-    let supabaseClient = null;
+    const supabaseClient = window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
     let loadedSubscribers = [];
-
-    loadScript('https://' + 'cdn.jsdelivr.net/npm/@supabase/supabase-js@2', () => {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      loadPublicEvents();
-    });
 
     async function loadPublicEvents() {
       if (!supabaseClient) return;
-      const { data } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
+      const { data, error } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
         document.getElementById('public-events-grid').innerHTML = data.map(ev => `
           <div class="card event-card">
@@ -281,11 +274,12 @@
         `).join('');
       }
     }
+    loadPublicEvents();
 
     document.getElementById('subscriber-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const status = document.getElementById('form-status');
-      if (!supabaseClient) { status.textContent = 'Still connecting to database, try again in 2 seconds...'; return; }
+      if (!supabaseClient) { status.textContent = 'Supabase script blocked or failed to load.'; return; }
       status.textContent = 'Saving...';
       const { error } = await supabaseClient.from('subscribers').insert([{
         full_name: document.getElementById('full_name').value,
@@ -320,7 +314,7 @@
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl = document.getElementById('login-error');
-      if (!supabaseClient) { errEl.textContent = 'Database library still loading—please click Sign In again.'; return; }
+      if (!supabaseClient) { errEl.textContent = 'Supabase library failed to load.'; return; }
       const { error } = await supabaseClient.auth.signInWithPassword({
         email: document.getElementById('admin-email').value,
         password: document.getElementById('admin-password').value
@@ -331,13 +325,20 @@
 
     document.getElementById('add-event-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!supabaseClient) { alert('Supabase not loaded'); return; }
       const { error } = await supabaseClient.from('events').insert([{
         title: document.getElementById('ev-title').value,
         event_date: document.getElementById('ev-date').value,
         location: document.getElementById('ev-location').value,
         description: document.getElementById('ev-desc').value
       }]);
-      if (!error) { e.target.reset(); loadPublicEvents(); alert('Event published!'); }
+      if (error) {
+        alert('Error publishing event: ' + error.message);
+      } else {
+        e.target.reset();
+        loadPublicEvents();
+        alert('Event published!');
+      }
     });
 
     async function logoutAdmin() {
@@ -347,7 +348,8 @@
     }
 
     async function fetchSubscribers() {
-      const { data } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
+      if (error) { alert('Error loading contacts: ' + error.message); return; }
       if (data) {
         loadedSubscribers = data;
         document.getElementById('total-count').textContent = data.length;
@@ -377,3 +379,4 @@
   </script>
 </body>
 </html>
+
