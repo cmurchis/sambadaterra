@@ -227,17 +227,22 @@
           </form>
           <div id="admin-events-list" style="margin-top: 1rem;"></div>
         </div>
-              <div class="card" style="background: #ECFDF5; margin-bottom: 1.5rem;">
-          <h4 style="color: var(--blue); margin-bottom: 0.75rem;">Manage Dancer Bios</h4>
+                     <div class="card" style="background: #ECFDF5; margin-bottom: 1.5rem;">
+          <h4 id="dancer-form-heading" style="color: var(--blue); margin-bottom: 0.75rem;">Manage Dancer Bios</h4>
           <form id="add-dancer-form" class="grid-2" style="gap: 0.5rem;">
+            <input type="hidden" id="dn-id">
             <input type="text" id="dn-name" placeholder="Dancer Name *" required>
             <input type="text" id="dn-role" placeholder="Role / Style (e.g., Lead Samba Dancer) *" required>
             <input type="text" id="dn-photo" placeholder="Photo path (e.g., images/dancer1.jpg) - Optional">
             <input type="text" id="dn-bio" placeholder="Short Bio (or leave blank for 'Bio coming soon!')">
-            <button type="submit" class="btn-green" style="grid-column: 1 / -1;">Add Dancer Profile</button>
+            <div style="grid-column: 1 / -1; display: flex; gap: 0.5rem;">
+              <button type="submit" id="dn-submit-btn" class="btn-green" style="flex: 1;">Add Dancer Profile</button>
+              <button type="button" id="dn-cancel-btn" onclick="resetDancerForm()" class="btn-yellow hidden" style="background: #E7E5E4 !important;">Cancel Edit</button>
+            </div>
           </form>
           <div id="admin-dancers-list" style="margin-top: 1rem;"></div>
         </div>
+
 
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <span style="font-size: 0.9rem;">Total Contacts: <strong id="total-count">0</strong></span>
@@ -361,7 +366,9 @@
         }
       } catch (err) { alert('Error: ' + err.message); }
     }
-        // 5B. Load, Add & Delete Dancer Bios
+        // 5B. Load, Add, Edit & Delete Dancer Bios
+    let loadedDancers = [];
+
     async function loadDancers() {
       try {
         const res = await fetch(SB_URL + '/rest/v1/dancers?select=*&order=created_at.asc', { headers: sbHeaders() });
@@ -371,6 +378,7 @@
         const adminList = document.getElementById('admin-dancers-list');
 
         if (Array.isArray(data) && data.length > 0) {
+          loadedDancers = data;
           grid.innerHTML = data.map(d => {
             const initials = d.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
             const avatar = d.photo_url
@@ -388,13 +396,17 @@
 
           if (adminList) {
             adminList.innerHTML = '<p style="font-size:0.8rem;font-weight:800;color:#57534E;margin-bottom:0.5rem;">ACTIVE DANCERS:</p>' + data.map(d => `
-              <div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:0.5rem 0.75rem;border:1px solid #E7E5E4;border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:0.5rem 0.75rem;border:1px solid #E7E5E4;border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;gap:0.5rem;">
                 <span><strong>${d.name}</strong> — ${d.role}</span>
-                <button onclick="deleteDancer('${d.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Delete</button>
+                <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+                  <button type="button" onclick="editDancer('${d.id}')" style="background:#DBEAFE;color:#1E40AF;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Edit</button>
+                  <button type="button" onclick="deleteDancer('${d.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Delete</button>
+                </div>
               </div>
             `).join('');
           }
         } else {
+          loadedDancers = [];
           grid.innerHTML = '<div class="card" style="grid-column:1/-1;text-align:center;color:#57534E;">Artist profiles are being updated—check back soon to meet the dancers of Samba Da Terra!</div>';
           if (adminList) adminList.innerHTML = '';
         }
@@ -402,26 +414,51 @@
     }
     loadDancers();
 
+    function editDancer(dancerId) {
+      const d = loadedDancers.find(item => item.id === dancerId);
+      if (!d) return;
+      document.getElementById('dn-id').value = d.id;
+      document.getElementById('dn-name').value = d.name;
+      document.getElementById('dn-role').value = d.role;
+      document.getElementById('dn-photo').value = d.photo_url || '';
+      document.getElementById('dn-bio').value = d.bio || '';
+      document.getElementById('dancer-form-heading').textContent = 'Edit Dancer: ' + d.name;
+      document.getElementById('dn-submit-btn').textContent = 'Save Changes';
+      document.getElementById('dn-cancel-btn').classList.remove('hidden');
+    }
+
+    function resetDancerForm() {
+      document.getElementById('add-dancer-form').reset();
+      document.getElementById('dn-id').value = '';
+      document.getElementById('dancer-form-heading').textContent = 'Manage Dancer Bios';
+      document.getElementById('dn-submit-btn').textContent = 'Add Dancer Profile';
+      document.getElementById('dn-cancel-btn').classList.add('hidden');
+    }
+
     document.getElementById('add-dancer-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const editId = document.getElementById('dn-id').value;
+      const payload = {
+        name: document.getElementById('dn-name').value,
+        role: document.getElementById('dn-role').value,
+        photo_url: document.getElementById('dn-photo').value.trim(),
+        bio: document.getElementById('dn-bio').value.trim()
+      };
       try {
-        const res = await fetch(SB_URL + '/rest/v1/dancers', {
-          method: 'POST',
+        const url = editId ? SB_URL + '/rest/v1/dancers?id=eq.' + editId : SB_URL + '/rest/v1/dancers';
+        const method = editId ? 'PATCH' : 'POST';
+        const res = await fetch(url, {
+          method: method,
           headers: { ...sbHeaders(true), 'Prefer': 'return=minimal' },
-          body: JSON.stringify({
-            name: document.getElementById('dn-name').value,
-            role: document.getElementById('dn-role').value,
-            photo_url: document.getElementById('dn-photo').value.trim(),
-            bio: document.getElementById('dn-bio').value.trim()
-          })
+          body: JSON.stringify(payload)
         });
         if (!res.ok) {
           const err = await res.json();
-          alert('Error adding dancer: ' + (err.message || res.statusText));
+          alert('Error saving dancer: ' + (err.message || res.statusText));
         } else {
-          e.target.reset();
+          resetDancerForm();
           loadDancers();
-          alert('Dancer profile added!');
+          alert(editId ? 'Dancer profile updated!' : 'Dancer profile added!');
         }
       } catch (err) { alert('Error: ' + err.message); }
     });
@@ -433,9 +470,13 @@
           method: 'DELETE',
           headers: sbHeaders(true)
         });
-        if (res.ok) loadDancers();
+        if (res.ok) {
+          if (document.getElementById('dn-id').value === dancerId) resetDancerForm();
+          loadDancers();
+        }
       } catch (err) { alert('Error: ' + err.message); }
     }
+
 
 
     // 6. Newsletter Form
