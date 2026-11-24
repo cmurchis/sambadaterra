@@ -221,11 +221,18 @@
       </div>
     </div>
   </div>
-  <script>
-    function loadScript(src, cb) { const s = document.createElement('script'); s.src = src; s.onload = cb; document.head.appendChild(s); }
+   <script>
+    function loadScript(src, cb) {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = cb;
+      document.head.appendChild(s);
+    }
+
     const SUPABASE_URL = 'https://' + 'fddldsnpwfeyidmznheh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
     const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
+
     const PAYMENT_LINKS = {
       stripeReceipt: 'https://' + '://stripe.com',
       stripeAnon: 'https://' + '://stripe.com',
@@ -235,6 +242,7 @@
       cashappTag: '$SambaDeTerra',
       cashappUrl: 'https://' + 'cash.app/$SambaDeTerra'
     };
+
     document.getElementById('yt-frame').src = 'https://' + '://youtube.com' + YOUTUBE_VIDEO_ID;
     document.getElementById('link-stripe-receipt').href = PAYMENT_LINKS.stripeReceipt;
     document.getElementById('link-stripe-anon').href = PAYMENT_LINKS.stripeAnon;
@@ -245,10 +253,15 @@
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
 
     loadScript('https://' + '://cloudflare.com', () => {
-      new QRCode(document.getElementById('qrcode'), { text: window.location.origin + window.location.pathname + '#donate', width: 150, height: 150, colorDark: '#002776', colorLight: '#ffffff' });
+      new QRCode(document.getElementById('qrcode'), {
+        text: window.location.origin + window.location.pathname + '#donate',
+        width: 150, height: 150, colorDark: '#002776', colorLight: '#ffffff'
+      });
     });
 
-    let supabaseClient = null, loadedSubscribers = [];
+    let supabaseClient = null;
+    let loadedSubscribers = [];
+
     loadScript('https://' + 'cdn.jsdelivr.net/npm/@supabase/supabase-js@2', () => {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       loadPublicEvents();
@@ -258,49 +271,109 @@
       if (!supabaseClient) return;
       const { data } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
-        document.getElementById('public-events-grid').innerHTML = data.map(ev => `<div class="card event-card"><span class="date-pill">${ev.event_date}</span><h3 style="margin:0.75rem 0 0.25rem;font-size:1.25rem;">${ev.title}</h3><p style="color:var(--green);font-weight:700;font-size:0.9rem;">${ev.location}</p><p style="color:#57534E;font-size:0.9rem;margin-top:0.5rem;">${ev.description || ''}</p></div>`).join('');
+        document.getElementById('public-events-grid').innerHTML = data.map(ev => `
+          <div class="card event-card">
+            <span class="date-pill">${ev.event_date}</span>
+            <h3 style="margin:0.75rem 0 0.25rem;font-size:1.25rem;">${ev.title}</h3>
+            <p style="color:var(--green);font-weight:700;font-size:0.9rem;">${ev.location}</p>
+            <p style="color:#57534E;font-size:0.9rem;margin-top:0.5rem;">${ev.description || ''}</p>
+          </div>
+        `).join('');
       }
     }
 
     document.getElementById('subscriber-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const status = document.getElementById('form-status'); status.textContent = 'Saving...';
-const { error } = await supabaseClient.from('subscribers').insert([{
-full_name: document.getElementById('full_name').value, email: document.getElementById('email').value,
-street_address: document.getElementById('street_address').value, city: document.getElementById('city').value,
-state: document.getElementById('state').value, zip_code: document.getElementById('zip_code').value
-}]);
-status.textContent = error ? 'Error: ' + error.message : 'Thank you for subscribing to Samba De Terra!';
-if (!error) e.target.reset();
-});
-function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); checkSession(); }
-function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
-async function checkSession() {
-if (!supabaseClient) return;
-const { data: { session } } = await supabaseClient.auth.getSession();
-if (session) { document.getElementById('admin-login-view').classList.add('hidden'); document.getElementById('admin-data-view').classList.remove('hidden'); fetchSubscribers(); }
-}
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-e.preventDefault();
-const { error } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('admin-email').value, password: document.getElementById('admin-password').value });
-if (error) document.getElementById('login-error').textContent = error.message; else checkSession();
-});
-document.getElementById('add-event-form').addEventListener('submit', async (e) => {
-e.preventDefault();
-const { error } = await supabaseClient.from('events').insert([{ title: document.getElementById('ev-title').value, event_date: document.getElementById('ev-date').value, location: document.getElementById('ev-location').value, description: document.getElementById('ev-desc').value }]);
-if (!error) { e.target.reset(); loadPublicEvents(); alert('Event published!'); }
-});
-async function logoutAdmin() { await supabaseClient.auth.signOut(); document.getElementById('admin-login-view').classList.remove('hidden'); document.getElementById('admin-data-view').classList.add('hidden'); }
-async function fetchSubscribers() {
-const { data } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
-if (data) {
-loadedSubscribers = data; document.getElementById('total-count').textContent = data.length;
-document.getElementById('subscribers-table-body').innerHTML = data.map(r => <tr><td><strong>${r.is_anonymous ? 'Anonymous Donor' : r.full_name}</strong></td><td>${r.is_anonymous ? '—' : r.email}</td><td>${[r.street_address, r.city, r.state, r.zip_code].filter(Boolean).join(', ') || '—'}</td><td>${r.is_donor ? 'Donor' : 'Subscriber'}</td></tr>).join('');
-}
-}
-function exportCSV() {
-const headers = ['Full Name', 'Email', 'Street Address', 'City', 'State', 'ZIP', 'Is Donor'];
-const rows = loadedSubscribers.filter(s => !s.is_anonymous).map(s => ["${s.full_name}", "${s.email}", "${s.street_address || ''}", "${s.city || ''}", "${s.state || ''}", "${s.zip_code || ''}", s.is_donor]);
-const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-const link = document.createElement('a'); link.href = encodeURI(csv); link.download = 'samba_de_terra_newsletter.csv'; document.body.appendChild(link); link.click();
-}
+      const status = document.getElementById('form-status');
+      if (!supabaseClient) { status.textContent = 'Still connecting to database, try again in 2 seconds...'; return; }
+      status.textContent = 'Saving...';
+      const { error } = await supabaseClient.from('subscribers').insert([{
+        full_name: document.getElementById('full_name').value,
+        email: document.getElementById('email').value,
+        street_address: document.getElementById('street_address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip_code: document.getElementById('zip_code').value
+      }]);
+      status.textContent = error ? 'Error: ' + error.message : 'Thank you for subscribing to Samba De Terra!';
+      if (!error) e.target.reset();
+    });
+
+    function openAdminModal() {
+      document.getElementById('admin-modal').classList.remove('hidden');
+      checkSession();
+    }
+    function closeAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    async function checkSession() {
+      if (!supabaseClient) return;
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        document.getElementById('admin-login-view').classList.add('hidden');
+        document.getElementById('admin-data-view').classList.remove('hidden');
+        fetchSubscribers();
+      }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('login-error');
+      if (!supabaseClient) { errEl.textContent = 'Database library still loading—please click Sign In again.'; return; }
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: document.getElementById('admin-email').value,
+        password: document.getElementById('admin-password').value
+      });
+      if (error) errEl.textContent = error.message;
+      else checkSession();
+    });
+
+    document.getElementById('add-event-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await supabaseClient.from('events').insert([{
+        title: document.getElementById('ev-title').value,
+        event_date: document.getElementById('ev-date').value,
+        location: document.getElementById('ev-location').value,
+        description: document.getElementById('ev-desc').value
+      }]);
+      if (!error) { e.target.reset(); loadPublicEvents(); alert('Event published!'); }
+    });
+
+    async function logoutAdmin() {
+      await supabaseClient.auth.signOut();
+      document.getElementById('admin-login-view').classList.remove('hidden');
+      document.getElementById('admin-data-view').classList.add('hidden');
+    }
+
+    async function fetchSubscribers() {
+      const { data } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
+      if (data) {
+        loadedSubscribers = data;
+        document.getElementById('total-count').textContent = data.length;
+        document.getElementById('subscribers-table-body').innerHTML = data.map(r => `
+          <tr>
+            <td><strong>${r.is_anonymous ? 'Anonymous Donor' : r.full_name}</strong></td>
+            <td>${r.is_anonymous ? '—' : r.email}</td>
+            <td>${[r.street_address, r.city, r.state, r.zip_code].filter(Boolean).join(', ') || '—'}</td>
+            <td>${r.is_donor ? 'Donor' : 'Subscriber'}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function exportCSV() {
+      const headers = ['Full Name', 'Email', 'Street Address', 'City', 'State', 'ZIP', 'Is Donor'];
+      const rows = loadedSubscribers.filter(s => !s.is_anonymous).map(s => [
+        `"${s.full_name}"`, `"${s.email}"`, `"${s.street_address || ''}"`, `"${s.city || ''}"`, `"${s.state || ''}"`, `"${s.zip_code || ''}"`, s.is_donor
+      ]);
+      const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const link = document.createElement('a');
+      link.href = encodeURI(csv);
+      link.download = 'samba_de_terra_newsletter.csv';
+      document.body.appendChild(link);
+      link.click();
+    }
+  </script>
+</body>
+</html>
