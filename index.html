@@ -249,14 +249,16 @@
     document.getElementById('link-paypal').href = PAYMENT_LINKS.paypalUrl;
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
-    document.getElementById('analytics-dash-link').href = ['https://', '://cloudflare.com', '/'].join('');
+    document.getElementById('analytics-dash-link').href = ['https://', 'dash.', 'cloudflare', '.com/'].join('');
 
     // 1. Load Cloudflare Web Analytics
     const cfScript = document.createElement('script');
     cfScript.defer = true;
-    cfScript.src = ['https://', '://cloudflareinsights.com', '/beacon.min.js'].join('');
+    cfScript.src = ['https://', 'static.', 'cloudflareinsights', '.com/beacon.min.js'].join('');
     cfScript.setAttribute('data-cf-beacon', JSON.stringify({ token: CLOUDFLARE_TOKEN }));
     document.head.appendChild(cfScript);
+
+
 
     // 2. Render Printable QR Code
     const donateTarget = encodeURIComponent(window.location.origin + window.location.pathname + '#donate');
