@@ -221,16 +221,10 @@
       </div>
     </div>
   </div>
-    <script>
-    function loadExt(url, onload) {
-      const s = document.createElement('script');
-      s.src = url;
-      s.onload = onload;
-      document.head.appendChild(s);
-    }
-
-    const SUPABASE_URL = 'https://' + 'fddldsnpwfeyidmznheh.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
+     <script>
+    const SB_HOST = 'fddldsnpwfeyidmznheh.supabase.co';
+    const SB_URL = 'https://' + SB_HOST;
+    const SB_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
     const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
 
     const PAYMENT_LINKS = {
@@ -252,124 +246,169 @@
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
 
-    const qrUrl = 'https://' + '://cloudflare.com' + '/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    loadExt(qrUrl, () => {
-      new QRCode(document.getElementById('qrcode'), {
-        text: window.location.origin + window.location.pathname + '#donate',
-        width: 150, height: 150, colorDark: '#002776', colorLight: '#ffffff'
-      });
-    });
+    // 1. Render Printable QR Code via Image (Zero JS libraries required)
+    const donateTarget = encodeURIComponent(window.location.origin + window.location.pathname + '#donate');
+    const qrImg = document.createElement('img');
+    qrImg.alt = 'Scan to Donate to Samba De Terra';
+    qrImg.width = 160;
+    qrImg.height = 160;
+    qrImg.src = 'https://' + '://qrserver.com' + '/v1/create-qr-code/?size=160x160&color=002776&data=' + donateTarget;
+    document.getElementById('qrcode').appendChild(qrImg);
 
-    let supabaseClient = null;
+    // 2. Native Supabase API Helper (Zero external JS dependencies)
+    let adminToken = sessionStorage.getItem('sdt_admin_token') || '';
     let loadedSubscribers = [];
 
-    const sbUrl = 'https://' + 'cdn.jsdelivr.net' + '/npm/@supabase/supabase-js@2';
-    loadExt(sbUrl, () => {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      loadPublicEvents();
-    });
-
-    async function loadPublicEvents() {
-      if (!supabaseClient) return;
-      const { data } = await supabaseClient.from('events').select('*').order('created_at', { ascending: true });
-      if (data && data.length > 0) {
-        document.getElementById('public-events-grid').innerHTML = data.map(ev => `
-          <div class="card event-card">
-            <span class="date-pill">${ev.event_date}</span>
-            <h3 style="margin:0.75rem 0 0.25rem;font-size:1.25rem;">${ev.title}</h3>
-            <p style="color:var(--green);font-weight:700;font-size:0.9rem;">${ev.location}</p>
-            <p style="color:#57534E;font-size:0.9rem;margin-top:0.5rem;">${ev.description || ''}</p>
-          </div>
-        `).join('');
-      }
+    function sbHeaders(withAuth = false) {
+      const h = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
+      h['Authorization'] = 'Bearer ' + (withAuth && adminToken ? adminToken : SB_KEY);
+      return h;
     }
 
+    async function loadPublicEvents() {
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/events?select=*&order=created_at.asc', { headers: sbHeaders() });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          document.getElementById('public-events-grid').innerHTML = data.map(ev => `
+            <div class="card event-card">
+              <span class="date-pill">${ev.event_date}</span>
+              <h3 style="margin:0.75rem 0 0.25rem;font-size:1.25rem;">${ev.title}</h3>
+              <p style="color:var(--green);font-weight:700;font-size:0.9rem;">${ev.location}</p>
+              <p style="color:#57534E;font-size:0.9rem;margin-top:0.5rem;">${ev.description || ''}</p>
+            </div>
+          `).join('');
+        }
+      } catch (err) { console.error(err); }
+    }
+    loadPublicEvents();
+
+    // 3. Public Newsletter Form Submission
     document.getElementById('subscriber-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const status = document.getElementById('form-status');
-      if (!supabaseClient) { status.textContent = 'Connecting to database, please click Subscribe again in 1 second...'; return; }
       status.textContent = 'Saving...';
-      const { error } = await supabaseClient.from('subscribers').insert([{
-        full_name: document.getElementById('full_name').value,
-        email: document.getElementById('email').value,
-        street_address: document.getElementById('street_address').value,
-        city: document.getElementById('city').value,
-        state: document.getElementById('state').value,
-        zip_code: document.getElementById('zip_code').value
-      }]);
-      status.textContent = error ? 'Error: ' + error.message : 'Thank you for subscribing to Samba De Terra!';
-      if (!error) e.target.reset();
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/subscribers', {
+          method: 'POST',
+          headers: { ...sbHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            full_name: document.getElementById('full_name').value,
+            email: document.getElementById('email').value,
+            street_address: document.getElementById('street_address').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            zip_code: document.getElementById('zip_code').value
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          status.textContent = 'Error: ' + (err.message || res.statusText);
+        } else {
+          status.textContent = 'Thank you for subscribing to Samba De Terra!';
+          e.target.reset();
+        }
+      } catch (err) {
+        status.textContent = 'Network error: ' + err.message;
+      }
     });
 
+    // 4. Admin Portal Login, Events & Subscriber Management
     function openAdminModal() {
       document.getElementById('admin-modal').classList.remove('hidden');
-      checkSession();
-    }
-    function closeAdminModal() {
-      document.getElementById('admin-modal').classList.add('hidden');
-    }
-
-    async function checkSession() {
-      if (!supabaseClient) return;
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
+      if (adminToken) {
         document.getElementById('admin-login-view').classList.add('hidden');
         document.getElementById('admin-data-view').classList.remove('hidden');
         fetchSubscribers();
       }
     }
+    function closeAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl = document.getElementById('login-error');
-      if (!supabaseClient) { errEl.textContent = 'Still loading database—please click Sign In again.'; return; }
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email: document.getElementById('admin-email').value,
-        password: document.getElementById('admin-password').value
-      });
-      if (error) errEl.textContent = error.message;
-      else checkSession();
+      errEl.textContent = 'Signing in...';
+      try {
+        const res = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+          method: 'POST',
+          headers: sbHeaders(),
+          body: JSON.stringify({
+            email: document.getElementById('admin-email').value,
+            password: document.getElementById('admin-password').value
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.access_token) {
+          errEl.textContent = data.error_description || data.msg || 'Invalid login credentials';
+        } else {
+          errEl.textContent = '';
+          adminToken = data.access_token;
+          sessionStorage.setItem('sdt_admin_token', adminToken);
+          document.getElementById('admin-login-view').classList.add('hidden');
+          document.getElementById('admin-data-view').classList.remove('hidden');
+          fetchSubscribers();
+        }
+      } catch (err) {
+        errEl.textContent = 'Login error: ' + err.message;
+      }
     });
 
     document.getElementById('add-event-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!supabaseClient) { alert('Database still loading—try again.'); return; }
-      const { error } = await supabaseClient.from('events').insert([{
-        title: document.getElementById('ev-title').value,
-        event_date: document.getElementById('ev-date').value,
-        location: document.getElementById('ev-location').value,
-        description: document.getElementById('ev-desc').value
-      }]);
-      if (error) {
-        alert('Error publishing event: ' + error.message);
-      } else {
-        e.target.reset();
-        loadPublicEvents();
-        alert('Event published!');
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/events', {
+          method: 'POST',
+          headers: { ...sbHeaders(true), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            title: document.getElementById('ev-title').value,
+            event_date: document.getElementById('ev-date').value,
+            location: document.getElementById('ev-location').value,
+            description: document.getElementById('ev-desc').value
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          alert('Error publishing event: ' + (err.message || res.statusText));
+        } else {
+          e.target.reset();
+          loadPublicEvents();
+          alert('Event published to the public website!');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
       }
     });
 
-    async function logoutAdmin() {
-      await supabaseClient.auth.signOut();
+    function logoutAdmin() {
+      adminToken = '';
+      sessionStorage.removeItem('sdt_admin_token');
       document.getElementById('admin-login-view').classList.remove('hidden');
       document.getElementById('admin-data-view').classList.add('hidden');
     }
 
     async function fetchSubscribers() {
-      const { data, error } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
-      if (error) { alert('Error loading contacts: ' + error.message); return; }
-      if (data) {
-        loadedSubscribers = data;
-        document.getElementById('total-count').textContent = data.length;
-        document.getElementById('subscribers-table-body').innerHTML = data.map(r => `
-          <tr>
-            <td><strong>${r.is_anonymous ? 'Anonymous Donor' : r.full_name}</strong></td>
-            <td>${r.is_anonymous ? '—' : r.email}</td>
-            <td>${[r.street_address, r.city, r.state, r.zip_code].filter(Boolean).join(', ') || '—'}</td>
-            <td>${r.is_donor ? 'Donor' : 'Subscriber'}</td>
-          </tr>
-        `).join('');
-      }
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/subscribers?select=*&order=created_at.desc', {
+          headers: sbHeaders(true)
+        });
+        if (res.status === 401) { logoutAdmin(); return; }
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          loadedSubscribers = data;
+          document.getElementById('total-count').textContent = data.length;
+          document.getElementById('subscribers-table-body').innerHTML = data.map(r => `
+            <tr>
+              <td><strong>${r.is_anonymous ? 'Anonymous Donor' : r.full_name}</strong></td>
+              <td>${r.is_anonymous ? '—' : r.email}</td>
+              <td>${[r.street_address, r.city, r.state, r.zip_code].filter(Boolean).join(', ') || '—'}</td>
+              <td>${r.is_donor ? 'Donor' : 'Subscriber'}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) { console.error(err); }
     }
 
     function exportCSV() {
