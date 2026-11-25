@@ -123,19 +123,28 @@
     </div>
   </section>
   <div class="media-bg">
-    <section id="media" class="media-inner">
-      <span class="section-tag">Feel the Rhythm</span>
-      <h2>Performances & Gallery</h2>
+       <section id="media" class="media-inner">
+      <div style="display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <span class="section-tag">Feel the Rhythm</span>
+          <h2 style="margin-bottom: 0;">Performances & Gallery</h2>
+        </div>
+        <a id="gallery-ig-link" href="#" target="_blank" class="btn-blue" style="font-size: 0.85rem; padding: 0.6rem 1.25rem;">
+          Follow Us on Instagram
+        </a>
+      </div>
+
       <div class="video-box">
         <iframe id="yt-frame" title="Samba Da Terra Performance" allowfullscreen></iframe>
       </div>
-      <div class="grid-3">
-        <img src="images/dance1.jpeg" alt="Performance 1" class="gallery-img">
-        <img src="images/dance2.jpeg" alt="Performance 2" class="gallery-img">
-        <img src="images/dance3.jpeg" alt="Performance 3" class="gallery-img">
+
+      <div id="dynamic-gallery-grid" class="grid-3">
+        <img src="images/dance1.JPG" alt="Performance 1" class="gallery-img">
+        <img src="images/dance2.JPG" alt="Performance 2" class="gallery-img">
+        <img src="images/dance3.JPG" alt="Performance 3" class="gallery-img">
       </div>
-      
     </section>
+
   </div>
     <section id="dancers">
     <span class="section-tag">Meet the Collective</span>
@@ -223,6 +232,11 @@
       </form>
     </section>
   </div>
+  <div style="margin-top: 0.75rem;">
+  <a id="footer-ig-link" href="#" target="_blank" style="color: var(--yellow); font-weight: 800; text-decoration: underline; margin-right: 1rem;">Follow @SambaDaTerra on Instagram</a>
+  <button onclick="openAdminModal()" style="background: none; border: none; color: #BFDBFE; text-decoration: underline; cursor: pointer; font-size: 0.8rem;">Admin Portal</button>
+</div>
+
    <footer>
     <p>&copy; 2026 Samba Da Terra • 501(c)(3) Nonprofit Organization</p>
     <button onclick="openAdminModal()" style="background: none; border: none; color: var(--yellow); text-decoration: underline; cursor: pointer; margin-top: 0.75rem; font-size: 0.8rem;">Admin Portal</button>
@@ -268,6 +282,15 @@
           </form>
           <div id="admin-dancers-list" style="margin-top: 1rem;"></div>
         </div>
+                <div class="card" style="background: #FEFCE8; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--blue); margin-bottom: 0.75rem;">Upload Event Photos to Gallery</h4>
+          <form id="upload-photo-form" class="grid-2" style="gap: 0.5rem; align-items: center;">
+            <input type="file" id="photo-file" accept="image/*" required style="background: white; padding: 0.55rem;">
+            <input type="text" id="photo-caption" placeholder="Event Caption (e.g., Carnaval Parade 2026)">
+            <button type="submit" id="photo-upload-btn" class="btn-green" style="grid-column: 1 / -1;">Upload Photo to Gallery</button>
+          </form>
+          <div id="admin-photos-list" style="margin-top: 1rem;"></div>
+        </div>
 
         
           <div class="card" style="background: #EFF6FF; margin-bottom: 1.5rem;">
@@ -300,6 +323,10 @@
     const SB_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
     const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
     const CLOUDFLARE_TOKEN = '315ae7abf9c94c79a21dfcfe1b9e9ad4';
+    const INSTAGRAM_URL = ['https://', '://instagram.com', 'samba.da.terra'].join('');
+document.getElementById('gallery-ig-link').href = INSTAGRAM_URL;
+if (document.getElementById('footer-ig-link')) document.getElementById('footer-ig-link').href = INSTAGRAM_URL;
+
 
     const PAYMENT_LINKS = {
       stripeReceipt: ['https://', 'donate.stripe.com', '/your-standard-link'].join(''),
@@ -509,6 +536,108 @@
       } catch (err) { alert('Error: ' + err.message); }
     }
 
+      // 5C. Load, Upload & Delete Event Photos
+    async function loadPhotos() {
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/photos?select=*&order=created_at.desc', { headers: sbHeaders() });
+        if (!res.ok) return;
+        const data = await res.json();
+        const grid = document.getElementById('dynamic-gallery-grid');
+        const adminList = document.getElementById('admin-photos-list');
+
+        const defaultPhotos = `
+          <img src="images/dance1.JPG" alt="Performance 1" class="gallery-img">
+          <img src="images/dance2.JPG" alt="Performance 2" class="gallery-img">
+          <img src="images/dance3.JPG" alt="Performance 3" class="gallery-img">
+        `;
+
+        if (Array.isArray(data) && data.length > 0) {
+          const uploadedHtml = data.map(p => `
+            <div style="position: relative;">
+              <img src="${p.image_url}" alt="${p.caption || 'Samba Da Terra Event'}" class="gallery-img">
+              ${p.caption ? `<div style="font-size:0.8rem;font-weight:700;color:var(--blue);margin-top:0.35rem;text-align:center;">${p.caption}</div>` : ''}
+            </div>
+          `).join('');
+          grid.innerHTML = uploadedHtml + defaultPhotos;
+
+          if (adminList) {
+            adminList.innerHTML = '<p style="font-size:0.8rem;font-weight:800;color:#57534E;margin-bottom:0.5rem;">UPLOADED PHOTOS:</p>' + data.map(p => `
+              <div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:0.4rem 0.75rem;border:1px solid #E7E5E4;border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;gap:0.5rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;">
+                  <img src="${p.image_url}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+                  <span>${p.caption || 'Event Photo'}</span>
+                </div>
+                <button type="button" onclick="deletePhoto('${p.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Delete</button>
+              </div>
+            `).join('');
+          }
+        } else {
+          grid.innerHTML = defaultPhotos;
+          if (adminList) adminList.innerHTML = '';
+        }
+      } catch (err) { console.error(err); }
+    }
+    loadPhotos();
+
+    document.getElementById('upload-photo-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('photo-file');
+      const btn = document.getElementById('photo-upload-btn');
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      btn.textContent = 'Uploading photo...';
+      btn.disabled = true;
+
+      try {
+        const cleanName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const uploadRes = await fetch(SB_URL + '/storage/v1/object/gallery/' + cleanName, {
+          method: 'POST',
+          headers: {
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + adminToken,
+            'Content-Type': file.type || 'image/jpeg'
+          },
+          body: file
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json();
+          alert('Upload error: ' + (err.message || uploadRes.statusText));
+        } else {
+          const publicUrl = SB_URL + '/storage/v1/object/public/gallery/' + cleanName;
+          const dbRes = await fetch(SB_URL + '/rest/v1/photos', {
+            method: 'POST',
+            headers: { ...sbHeaders(true), 'Prefer': 'return=minimal' },
+            body: JSON.stringify({
+              image_url: publicUrl,
+              caption: document.getElementById('photo-caption').value.trim()
+            })
+          });
+          if (dbRes.ok) {
+            e.target.reset();
+            loadPhotos();
+            alert('Photo added to the public gallery!');
+          }
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.textContent = 'Upload Photo to Gallery';
+        btn.disabled = false;
+      }
+    });
+
+    async function deletePhoto(photoId) {
+      if (!confirm('Remove this photo from the gallery?')) return;
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/photos?id=eq.' + photoId, {
+          method: 'DELETE',
+          headers: sbHeaders(true)
+        });
+        if (res.ok) loadPhotos();
+      } catch (err) { alert('Error: ' + err.message); }
+    }
 
 
     // 6. Newsletter Form
