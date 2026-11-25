@@ -150,9 +150,10 @@
         </a>
       </div>
 
-      <div class="video-box">
-        <iframe id="yt-frame" title="Samba Da Terra Performance" allowfullscreen></iframe>
+      <div style="max-width: 400px; margin: 0 auto 2.5rem; border-radius: 18px; overflow: hidden; border: 4px solid var(--yellow); background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+        <iframe id="ig-reel-frame" title="Samba Da Terra Instagram Reel" style="width: 100%; height: 680px; border: none; display: block;" scrolling="no" allowtransparency="true" allowfullscreen></iframe>
       </div>
+
 
       <div id="dynamic-gallery-grid" class="grid-3">
         <img src="images/dance1.JPG" alt="Performance 1" class="gallery-img">
@@ -350,7 +351,8 @@
     const SB_HOST = 'fddldsnpwfeyidmznheh.supabase.co';
     const SB_URL = 'https://' + SB_HOST;
     const SB_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
-    const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
+   const IG_REEL_ID = 'DXveATXxyxq';
+
     const CLOUDFLARE_TOKEN = '315ae7abf9c94c79a21dfcfe1b9e9ad4';
     const INSTAGRAM_URL = ['https://', 'www.', 'instagram', '.com/samba.da.terra/'].join('');
     document.getElementById('gallery-ig-link').href = INSTAGRAM_URL;
@@ -367,8 +369,7 @@
       cashappTag: '$SambaDaTerra',
       cashappUrl: ['https://', 'cash.app', '/$SambaDaTerra'].join('')
     };
-
-    document.getElementById('yt-frame').src = ['https://', 'www.youtube.com', '/embed/', YOUTUBE_VIDEO_ID].join('');
+    document.getElementById('ig-reel-frame').src = ['https://', 'www.', 'instagram', '.com/reel/', IG_REEL_ID, '/embed/'].join('');
     document.getElementById('link-stripe-receipt').href = PAYMENT_LINKS.stripeReceipt;
     document.getElementById('link-stripe-anon').href = PAYMENT_LINKS.stripeAnon;
     document.getElementById('link-venmo').href = PAYMENT_LINKS.venmoUrl;
