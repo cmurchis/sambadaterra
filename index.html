@@ -91,6 +91,30 @@
       }
       .print-card-copy img { margin: 0 auto; display: block; }
     }
+        .ig-landscape-wrap {
+      max-width: 760px;
+      margin: 0 auto 2.5rem;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 4px solid var(--yellow);
+      background: #000;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .ig-landscape-wrap iframe {
+      position: absolute;
+      top: -58px; /* Hides Instagram's top header bar */
+      left: 0;
+      width: 100%;
+      height: calc(100% + 185px); /* Pushes Instagram's bottom caption bar below the frame */
+      border: none;
+    }
+    @media (max-width: 600px) {
+      .ig-landscape-wrap { aspect-ratio: 4 / 3; }
+      .ig-landscape-wrap iframe { top: -54px; height: calc(100% + 175px); }
+    }
+
 
   </style>
 
@@ -150,9 +174,10 @@
         </a>
       </div>
 
-      <div style="max-width: 400px; margin: 0 auto 2.5rem; border-radius: 18px; overflow: hidden; border: 4px solid var(--yellow); background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-        <iframe id="ig-reel-frame" title="Samba Da Terra Instagram Reel" style="width: 100%; height: 680px; border: none; display: block;" scrolling="no" allowtransparency="true" allowfullscreen></iframe>
+           <div class="ig-landscape-wrap">
+        <iframe id="ig-reel-frame" title="Samba Da Terra Performance" scrolling="no" allowtransparency="true" allowfullscreen></iframe>
       </div>
+
 
 
       <div id="dynamic-gallery-grid" class="grid-3">
