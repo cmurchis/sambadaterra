@@ -72,11 +72,26 @@
     }
 
     @media print {
-      body * { visibility: hidden; }
-      #printable-qr-card, #printable-qr-card * { visibility: visible; }
-      #printable-qr-card { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 320px; box-shadow: none; }
-      .no-print { display: none !important; }
+      @page { size: letter portrait; margin: 0.4in; }
+      body > *:not(#print-sheet) { display: none !important; }
+      #print-sheet {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35in;
+        width: 100%;
+      }
+      .print-card-copy {
+        border: 3px dashed #009C3B;
+        border-radius: 16px;
+        padding: 0.35in 0.25in;
+        text-align: center;
+        background: white;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .print-card-copy img { margin: 0 auto; display: block; }
     }
+
   </style>
 
 </head>
@@ -189,7 +204,7 @@
         <div id="qrcode"></div>
         <p style="font-weight: 900; color: var(--blue); font-size: 0.95rem;">Samba Da Terra</p>
         <p style="font-size: 0.75rem; color: #78716C;">501(c)(3) Nonprofit • EIN XX-XXXXXXX</p>
-        <button onclick="window.print()" class="btn-blue no-print" style="width: 100%; margin-top: 1rem; font-size: 0.8rem;">Print Event QR Card</button>
+       <button onclick="printQRCards()" class="btn-blue no-print" style="width: 100%; margin-top: 1rem; font-size: 0.8rem;">Print Event QR Cards </button>
       </div>
     </div>
   </section>
@@ -233,6 +248,8 @@
       </form>
     </section>
   </div>
+    <div id="print-sheet" class="hidden"></div>
+
 
    <footer>
     <p>&copy; 2026 Samba Da Terra • 501(c)(3) Nonprofit Organization</p>
@@ -371,6 +388,24 @@
     qrImg.height = 160;
     qrImg.src = ['https://', 'quickchart.io', '/qr?size=160&dark=002776&text=', donateTarget].join('');
     document.getElementById('qrcode').appendChild(qrImg);
+
+        function printQRCards() {
+      const sheet = document.getElementById('print-sheet');
+      const card = document.getElementById('printable-qr-card');
+      // Clone the QR card 4 times onto a single printable 2x2 grid
+      const cleanCard = card.cloneNode(true);
+      cleanCard.removeAttribute('id');
+      cleanCard.className = 'print-card-copy';
+      const btn = cleanCard.querySelector('button');
+      if (btn) btn.remove();
+
+      sheet.innerHTML = '';
+      for (let i = 0; i < 4; i++) {
+        sheet.appendChild(cleanCard.cloneNode(true));
+      }
+      window.print();
+    }
+
 
     // 3. Supabase Helper
     let adminToken = sessionStorage.getItem('sdt_admin_token') || '';
