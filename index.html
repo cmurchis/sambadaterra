@@ -294,13 +294,14 @@
           </form>
           <div id="admin-events-list" style="margin-top: 1rem;"></div>
         </div>
-                     <div class="card" style="background: #ECFDF5; margin-bottom: 1.5rem;">
+                            <div class="card" style="background: #ECFDF5; margin-bottom: 1.5rem;">
           <h4 id="dancer-form-heading" style="color: var(--blue); margin-bottom: 0.75rem;">Manage Dancer Bios</h4>
-          <form id="add-dancer-form" class="grid-2" style="gap: 0.5rem;">
+          <form id="add-dancer-form" class="grid-2" style="gap: 0.5rem; align-items: center;">
             <input type="hidden" id="dn-id">
+            <input type="hidden" id="dn-photo-url">
             <input type="text" id="dn-name" placeholder="Dancer Name *" required>
             <input type="text" id="dn-role" placeholder="Role / Style (e.g., Lead Samba Dancer) *" required>
-            <input type="text" id="dn-photo" placeholder="Photo path (e.g., images/dancer1.jpg) - Optional">
+            <input type="file" id="dn-photo-file" accept="image/*" style="background: white; padding: 0.55rem;">
             <input type="text" id="dn-bio" placeholder="Short Bio (or leave blank for 'Bio coming soon!')">
             <div style="grid-column: 1 / -1; display: flex; gap: 0.5rem;">
               <button type="submit" id="dn-submit-btn" class="btn-green" style="flex: 1;">Add Dancer Profile</button>
@@ -309,6 +310,7 @@
           </form>
           <div id="admin-dancers-list" style="margin-top: 1rem;"></div>
         </div>
+
                 <div class="card" style="background: #FEFCE8; margin-bottom: 1.5rem;">
           <h4 style="color: var(--blue); margin-bottom: 0.75rem;">Upload Event Photos to Gallery</h4>
           <form id="upload-photo-form" class="grid-2" style="gap: 0.5rem; align-items: center;">
@@ -471,7 +473,7 @@
         }
       } catch (err) { alert('Error: ' + err.message); }
     }
-        // 5B. Load, Add, Edit & Delete Dancer Bios
+    // 5B. Load, Add, Edit & Delete Dancer Bios (with Direct Photo Upload)
     let loadedDancers = [];
 
     async function loadDancers() {
@@ -502,7 +504,10 @@
           if (adminList) {
             adminList.innerHTML = '<p style="font-size:0.8rem;font-weight:800;color:#57534E;margin-bottom:0.5rem;">ACTIVE DANCERS:</p>' + data.map(d => `
               <div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:0.5rem 0.75rem;border:1px solid #E7E5E4;border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;gap:0.5rem;">
-                <span><strong>${d.name}</strong> — ${d.role}</span>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  ${d.photo_url ? `<img src="${d.photo_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : ''}
+                  <span><strong>${d.name}</strong> — ${d.role}</span>
+                </div>
                 <div style="display:flex;gap:0.4rem;flex-shrink:0;">
                   <button type="button" onclick="editDancer('${d.id}')" style="background:#DBEAFE;color:#1E40AF;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Edit</button>
                   <button type="button" onclick="deleteDancer('${d.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;padding:0.3rem 0.7rem;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.75rem;">Delete</button>
@@ -525,9 +530,10 @@
       document.getElementById('dn-id').value = d.id;
       document.getElementById('dn-name').value = d.name;
       document.getElementById('dn-role').value = d.role;
-      document.getElementById('dn-photo').value = d.photo_url || '';
+      document.getElementById('dn-photo-url').value = d.photo_url || '';
+      document.getElementById('dn-photo-file').value = '';
       document.getElementById('dn-bio').value = d.bio || '';
-      document.getElementById('dancer-form-heading').textContent = 'Edit Dancer: ' + d.name;
+      document.getElementById('dancer-form-heading').textContent = 'Edit Dancer: ' + d.name + ' (leave file blank to keep current photo)';
       document.getElementById('dn-submit-btn').textContent = 'Save Changes';
       document.getElementById('dn-cancel-btn').classList.remove('hidden');
     }
@@ -535,6 +541,7 @@
     function resetDancerForm() {
       document.getElementById('add-dancer-form').reset();
       document.getElementById('dn-id').value = '';
+      document.getElementById('dn-photo-url').value = '';
       document.getElementById('dancer-form-heading').textContent = 'Manage Dancer Bios';
       document.getElementById('dn-submit-btn').textContent = 'Add Dancer Profile';
       document.getElementById('dn-cancel-btn').classList.add('hidden');
@@ -543,13 +550,42 @@
     document.getElementById('add-dancer-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const editId = document.getElementById('dn-id').value;
-      const payload = {
-        name: document.getElementById('dn-name').value,
-        role: document.getElementById('dn-role').value,
-        photo_url: document.getElementById('dn-photo').value.trim(),
-        bio: document.getElementById('dn-bio').value.trim()
-      };
+      const fileInput = document.getElementById('dn-photo-file');
+      const btn = document.getElementById('dn-submit-btn');
+      let finalPhotoUrl = document.getElementById('dn-photo-url').value;
+
+      btn.disabled = true;
+      btn.textContent = fileInput.files[0] ? 'Uploading photo...' : 'Saving...';
+
       try {
+        // Upload new headshot to Supabase 'gallery' bucket if a file was selected
+        if (fileInput.files && fileInput.files[0]) {
+          const file = fileInput.files[0];
+          const cleanName = 'dancer-' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const uploadRes = await fetch(SB_URL + '/storage/v1/object/gallery/' + cleanName, {
+            method: 'POST',
+            headers: {
+              'apikey': SB_KEY,
+              'Authorization': 'Bearer ' + adminToken,
+              'Content-Type': file.type || 'image/jpeg'
+            },
+            body: file
+          });
+          if (!uploadRes.ok) {
+            const err = await uploadRes.json();
+            alert('Photo upload error: ' + (err.message || uploadRes.statusText));
+            return;
+          }
+          finalPhotoUrl = SB_URL + '/storage/v1/object/public/gallery/' + cleanName;
+        }
+
+        const payload = {
+          name: document.getElementById('dn-name').value,
+          role: document.getElementById('dn-role').value,
+          photo_url: finalPhotoUrl,
+          bio: document.getElementById('dn-bio').value.trim()
+        };
+
         const url = editId ? SB_URL + '/rest/v1/dancers?id=eq.' + editId : SB_URL + '/rest/v1/dancers';
         const method = editId ? 'PATCH' : 'POST';
         const res = await fetch(url, {
@@ -565,7 +601,12 @@
           loadDancers();
           alert(editId ? 'Dancer profile updated!' : 'Dancer profile added!');
         }
-      } catch (err) { alert('Error: ' + err.message); }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = document.getElementById('dn-id').value ? 'Save Changes' : 'Add Dancer Profile';
+      }
     });
 
     async function deleteDancer(dancerId) {
