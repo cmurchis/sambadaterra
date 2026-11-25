@@ -122,15 +122,16 @@
       </div>
     </div>
   </section>
-  <div class="media-bg">
-       <section id="media" class="media-inner">
+   <div class="media-bg">
+    <section id="media" class="media-inner">
       <div style="display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
         <div>
           <span class="section-tag">Feel the Rhythm</span>
           <h2 style="margin-bottom: 0;">Performances & Gallery</h2>
         </div>
-        <a id="gallery-ig-link" href="#" target="_blank" class="btn-blue" style="font-size: 0.85rem; padding: 0.6rem 1.25rem;">
-          Follow Us on Instagram
+        <a id="gallery-ig-link" href="#" target="_blank" class="btn-blue" style="font-size: 0.85rem; padding: 0.6rem 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          Follow @samba.da.terra
         </a>
       </div>
 
@@ -144,8 +145,8 @@
         <img src="images/dance3.JPG" alt="Performance 3" class="gallery-img">
       </div>
     </section>
-
   </div>
+
     <section id="dancers">
     <span class="section-tag">Meet the Collective</span>
     <h2>Our Dancers & Artists</h2>
@@ -234,11 +235,16 @@
   </div>
 
    <footer>
-     <div style="margin-top: 0.75rem;">
-  <a id="footer-ig-link" href="#" target="_blank" style="color: var(--yellow); font-weight: 800; text-decoration: underline; margin-right: 1rem;">Follow @SambaDaTerra on Instagram</a>
-  <button onclick="openAdminModal()" style="background: none; border: none; color: #BFDBFE; text-decoration: underline; cursor: pointer; font-size: 0.8rem;">Admin Portal</button>
-</div>
+    <p>&copy; 2026 Samba Da Terra • 501(c)(3) Nonprofit Organization</p>
+    <div style="margin-top: 0.75rem; display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+      <a id="footer-ig-link" href="#" target="_blank" style="color: var(--yellow); font-weight: 800; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.4rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        Follow @samba.da.terra
+      </a>
+      <button onclick="openAdminModal()" style="background: none; border: none; color: #BFDBFE; text-decoration: underline; cursor: pointer; font-size: 0.8rem;">Admin Portal</button>
+    </div>
   </footer>
+
   <div id="admin-modal" class="modal-backdrop hidden">
     <div class="modal-box">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E7E5E4; padding-bottom: 1rem; margin-bottom: 1rem;">
@@ -323,9 +329,10 @@
     const SB_KEY = 'sb_publishable_7I67gpUFcd-M9GnCUYA1yg_0AjmFJZt';
     const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
     const CLOUDFLARE_TOKEN = '315ae7abf9c94c79a21dfcfe1b9e9ad4';
-    const INSTAGRAM_URL = ['https://', '://instagram.com', 'samba.da.terra'].join('');
-document.getElementById('gallery-ig-link').href = INSTAGRAM_URL;
-if (document.getElementById('footer-ig-link')) document.getElementById('footer-ig-link').href = INSTAGRAM_URL;
+    const INSTAGRAM_URL = ['https://', 'www.', 'instagram', '.com/samba.da.terra/'].join('');
+    document.getElementById('gallery-ig-link').href = INSTAGRAM_URL;
+    if (document.getElementById('footer-ig-link')) document.getElementById('footer-ig-link').href = INSTAGRAM_URL;
+
 
 
     const PAYMENT_LINKS = {
