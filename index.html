@@ -792,6 +792,7 @@
           document.getElementById('admin-data-view').classList.remove('hidden');
           fetchSubscribers();
           loadPublicEvents();
+          fetchBookings();
         }
       } catch (err) { errEl.textContent = 'Login error: ' + err.message; }
     });
@@ -877,6 +878,7 @@
     async function fetchBookings() {
       try {
         const res = await fetch(SB_URL + '/rest/v1/bookings?select=*&order=created_at.desc', { headers: sbHeaders(true) });
+        if (res.status === 401) { logoutAdmin(); return; }
         if (!res.ok) return;
         const data = await res.json();
         const list = document.getElementById('admin-bookings-list');
