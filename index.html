@@ -119,6 +119,68 @@
         transform: translateY(calc(-50% + 45px));
       }
     }
+      /* Horizontal Carousels for Gallery & Dancers */
+    .carousel-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .carousel-track {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+      width: 100%;
+      padding: 0.5rem 0.25rem;
+    }
+    .carousel-track::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+    .carousel-track > * {
+      flex: 0 0 calc((100% - 3rem) / 3); /* 3 items visible on desktop */
+      scroll-snap-align: start;
+      min-width: 0;
+    }
+    @media (max-width: 900px) {
+      .carousel-track > * { flex: 0 0 calc((100% - 1.5rem) / 2); } /* 2 items on tablets */
+    }
+    @media (max-width: 600px) {
+      .carousel-track > * { flex: 0 0 85%; } /* 1 main card + peek of next on mobile */
+    }
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--yellow);
+      background: var(--blue);
+      color: var(--yellow);
+      font-size: 1.4rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .carousel-btn:hover {
+      background: var(--green);
+      color: white;
+      transform: translateY(-50%) scale(1.08);
+    }
+    .carousel-btn.prev { left: -16px; }
+    .carousel-btn.next { right: -16px; }
+    @media (max-width: 600px) {
+      .carousel-btn.prev { left: 4px; }
+      .carousel-btn.next { right: 4px; }
+    }
 
   </style>
 
@@ -183,20 +245,29 @@
       </div>
 
 
+   <div class="carousel-wrap">
+     <button type="button" class="carousel-btn prev" onclick="scrollCarousel('dynamic-gallery-grid', -1)" aria-label="Previous photo">&#8249;</button>
+     <div id="dynamic-gallery-grid" class="carousel-track">
+       <img src="images/dance1.JPG" alt="Performance 1" class="gallery-img">
+       <img src="images/dance2.JPG" alt="Performance 2" class="gallery-img">
+       <img src="images/dance3.JPG" alt="Performance 3" class="gallery-img">
+     </div>
+     <button type="button" class="carousel-btn next" onclick="scrollCarousel('dynamic-gallery-grid', 1)" aria-label="Next photo">&#8250;</button>
+   </div>
 
-      <div id="dynamic-gallery-grid" class="grid-3">
-        <img src="images/dance1.JPG" alt="Performance 1" class="gallery-img">
-        <img src="images/dance2.JPG" alt="Performance 2" class="gallery-img">
-        <img src="images/dance3.JPG" alt="Performance 3" class="gallery-img">
-      </div>
-    </section>
-  </div>
 
     <section id="dancers">
-    <span class="section-tag">Meet the Collective</span>
+    <span class="section-tag">Meet Samba Da Terra</span>
     <h2>Our Dancers & Artists</h2>
     <p style="color: #57534E; margin-top: -1rem; margin-bottom: 2rem;">Meet the performers bringing Brazilian rhythm and heritage to the stage. More artist profiles coming soon!</p>
-    <div id="public-dancers-grid" class="grid-3"></div>
+      <div class="carousel-wrap">
+     <button type="button" class="carousel-btn prev" onclick="scrollCarousel('public-dancers-grid', -1)" aria-label="Previous dancer">&#8249;</button>
+     <div id="public-dancers-grid" class="carousel-track">
+       <div class="card" style="grid-column: 1 / -1; text-align: center; color: #57534E;">Loading Samba Da Terra profiles...</div>
+     </div>
+     <button type="button" class="carousel-btn next" onclick="scrollCarousel('public-dancers-grid', 1)" aria-label="Next dancer">&#8250;</button>
+   </div>
+
   </section>
 
   <section id="donate">
@@ -407,6 +478,44 @@
     document.getElementById('link-cashapp').href = PAYMENT_LINKS.cashappUrl;
     document.getElementById('handle-cashapp').textContent = PAYMENT_LINKS.cashappTag;
     document.getElementById('analytics-dash-link').href = ['https://', 'dash.', 'cloudflare', '.com/'].join('');
+
+        function scrollCarousel(trackId, direction) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+      const firstItem = track.firstElementChild;
+      const step = firstItem ? firstItem.offsetWidth + 24 : track.clientWidth * 0.8;
+
+      // Loop back to start if at the right end, or jump to end if clicking Prev at the start
+      if (direction === 1 && track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+      } else if (direction === -1 && track.scrollLeft <= 10) {
+        track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: direction * step, behavior: 'smooth' });
+      }
+    }
+
+    function startAutoScroll(trackId, intervalMs = 4000) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+      let paused = false;
+
+      // Pause auto-scroll while user hovers or touches the carousel
+      track.parentElement.addEventListener('mouseenter', () => { paused = true; });
+      track.parentElement.addEventListener('mouseleave', () => { paused = false; });
+      track.addEventListener('touchstart', () => { paused = true; }, { passive: true });
+      track.addEventListener('touchend', () => { setTimeout(() => { paused = false; }, 3000); }, { passive: true });
+
+      setInterval(() => {
+        if (!paused && track.scrollWidth > track.clientWidth + 10) {
+          scrollCarousel(trackId, 1);
+        }
+      }, intervalMs);
+    }
+
+    startAutoScroll('dynamic-gallery-grid', 4000);
+    startAutoScroll('public-dancers-grid', 4500);
+
 
     // 1. Load Cloudflare Web Analytics
     const cfScript = document.createElement('script');
