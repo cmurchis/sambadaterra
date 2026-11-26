@@ -627,9 +627,10 @@
           loadedDancers = data;
           grid.innerHTML = data.map(d => {
             const initials = d.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-            const avatar = d.photo_url
-              ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.style.display='none'" style="width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto 1rem;border:3px solid var(--yellow);display:block;">`
-              : `<div style="width:96px;height:96px;border-radius:50%;background:var(--blue);color:var(--yellow);font-weight:900;font-size:1.5rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:3px solid var(--yellow);">${initials}</div>`;
+                       const avatar = d.photo_url
+              ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.style.display='none'" style="width:150px;height:150px;border-radius:50%;object-fit:cover;object-position:top;margin:0 auto 1rem;border:4px solid var(--yellow);display:block;">`
+              : `<div style="width:150px;height:150px;border-radius:50%;background:var(--blue);color:var(--yellow);font-weight:900;font-size:2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:4px solid var(--yellow);">${initials}</div>`;
+
             return `
               <div class="card" style="text-align:center;">
                 ${avatar}
