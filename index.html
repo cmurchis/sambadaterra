@@ -197,7 +197,7 @@
         <a href="#events">Events</a>
         <a href="#media">Photos & Videos</a>
         <a href="#newsletter">Newsletter</a>
-        <a href="#dancers">Dancers</a>
+        <a href="#dancers">Members</a>
         <a href="#book">Book Us</a>
          <a href="#donate" class="btn-yellow">Donate</a>
       </div>
@@ -682,8 +682,8 @@
       document.getElementById('add-dancer-form').reset();
       document.getElementById('dn-id').value = '';
       document.getElementById('dn-photo-url').value = '';
-      document.getElementById('dancer-form-heading').textContent = 'Manage Dancer Bios';
-      document.getElementById('dn-submit-btn').textContent = 'Add Dancer Profile';
+      document.getElementById('dancer-form-heading').textContent = 'Manage Member Bios';
+      document.getElementById('dn-submit-btn').textContent = 'Add Member Profile';
       document.getElementById('dn-cancel-btn').classList.add('hidden');
     }
 
@@ -750,7 +750,7 @@
     });
 
     async function deleteDancer(dancerId) {
-      if (!confirm('Remove this dancer profile?')) return;
+      if (!confirm('Remove this member profile?')) return;
       try {
         const res = await fetch(SB_URL + '/rest/v1/dancers?id=eq.' + dancerId, {
           method: 'DELETE',
