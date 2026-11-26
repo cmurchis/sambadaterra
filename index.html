@@ -396,16 +396,16 @@
           <div id="admin-events-list" style="margin-top: 1rem;"></div>
         </div>
                             <div class="card" style="background: #ECFDF5; margin-bottom: 1.5rem;">
-          <h4 id="dancer-form-heading" style="color: var(--blue); margin-bottom: 0.75rem;">Manage Dancer Bios</h4>
+          <h4 id="dancer-form-heading" style="color: var(--blue); margin-bottom: 0.75rem;">Manage Member Bios</h4>
           <form id="add-dancer-form" class="grid-2" style="gap: 0.5rem; align-items: center;">
             <input type="hidden" id="dn-id">
             <input type="hidden" id="dn-photo-url">
-            <input type="text" id="dn-name" placeholder="Dancer Name *" required>
+            <input type="text" id="dn-name" placeholder="Member Name *" required>
             <input type="text" id="dn-role" placeholder="Role / Style (e.g., Lead Samba Dancer) *" required>
             <input type="file" id="dn-photo-file" accept="image/*" style="background: white; padding: 0.55rem;">
             <input type="text" id="dn-bio" placeholder="Short Bio (or leave blank for 'Bio coming soon!')">
             <div style="grid-column: 1 / -1; display: flex; gap: 0.5rem;">
-              <button type="submit" id="dn-submit-btn" class="btn-green" style="flex: 1;">Add Dancer Profile</button>
+              <button type="submit" id="dn-submit-btn" class="btn-green" style="flex: 1;">Add Member Profile</button>
               <button type="button" id="dn-cancel-btn" onclick="resetDancerForm()" class="btn-yellow hidden" style="background: #E7E5E4 !important;">Cancel Edit</button>
             </div>
           </form>
